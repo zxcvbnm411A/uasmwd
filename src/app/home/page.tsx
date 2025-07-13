@@ -251,13 +251,11 @@ const HomePage: React.FC = () => {
     if (favorites.length > 0) fetchPhotos();
   }, [favorites]);
 
-  // Selalu minta login admin setiap klik hapus
   const handleDelete = (id: string) => {
     setPendingDeleteId(id);
     setShowLogin(true);
   };
 
-  // Login admin, jika benar lanjut hapus data
   const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (adminUser === "admin" && adminPass === "nimda") {
@@ -294,27 +292,34 @@ const HomePage: React.FC = () => {
     setSelectedPhoto(userPhotos[fav.id] || "https://via.placeholder.com/100");
   };
 
-  const handleEdit = (fav: Favorite) => {
-    setEditFav(fav);
-    setSelectedFav(null);
-  };
+const [user, setUser] = useState({ isAdmin: false }); 
+const handleEdit = (fav: Favorite) => {
+  if (!user.isAdmin) {
+    alert("Hanya admin yang dapat melakukan edit.");
+    return;
+  }
+  setEditFav(fav);
+  setSelectedFav(null);
+};
 
-  const handleEditSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editFav) return;
-    try {
-      await API.put(`/users/${editFav.id}`, {
-        nama: editFav.nama,
-        pekerjaan: editFav.pekerjaan,
-        lagu: editFav.lagu,
-        addedAt: editFav.addedAt
-      });
-      setEditFav(null);
-      fetchFavorites();
-    } catch {
-      alert("Gagal menyimpan perubahan.");
-    }
-  };
+const handleEditSave = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!editFav) return;
+
+  try {
+    await API.put(`/users/${editFav.id}`, {
+      nama: editFav.nama,
+      pekerjaan: editFav.pekerjaan,
+      lagu: editFav.lagu,
+      addedAt: editFav.addedAt
+    });
+    setEditFav(null);
+    fetchFavorites();
+  } catch {
+    alert("Gagal menyimpan perubahan.");
+  }
+};
+
 
   if (!mounted) return null;
 
