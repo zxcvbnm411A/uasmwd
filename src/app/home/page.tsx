@@ -2,75 +2,122 @@
 import React, { useEffect, useState } from "react";
 import API, { deleteUser } from "../../utils/api";
 
-const Navbar: React.FC<{ darkMode: boolean, toggleDarkMode: () => void }> = ({ darkMode, toggleDarkMode }) => (
-  <nav style={{
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    height: "60px",
-    background: darkMode ? "#222" : "#ad1457",
-    color: "#fff",
-    padding: "0 20px"
-  }}>
-    <div style={{ display: "flex", gap: 20 }}>
-      <a href="/home" style={{ color: "#fff", textDecoration: "none" }}>Home</a>
-      <a href="/add" style={{ color: "#fff", textDecoration: "none" }}>Add</a>
-    </div>
-    <div>
-      <div
-        onClick={toggleDarkMode}
-        style={{
-          width: 60,
-          height: 32,
-          borderRadius: 20,
-          background: darkMode ? "#192734" : "#fff",
-          border: "2px solid #fff",
-          display: "flex",
-          alignItems: "center",
-          cursor: "pointer",
-          position: "relative",
-          boxShadow: "0 1px 4px #2222"
-        }}
-      >
+const Navbar: React.FC<{ darkMode: boolean, toggleDarkMode: () => void }> = ({ darkMode, toggleDarkMode }) => {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(typeof window !== "undefined" && window.innerWidth <= 700);
+      if (window.innerWidth > 700) setMenuOpen(false);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+  const handleLinkClick = () => {
+    if (isMobile) setMenuOpen(false);
+  };
+  return (
+    <nav style={{
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      height: "60px",
+      background: darkMode ? "#ad1457" : "#ad1457",
+      color: "#fff",
+      padding: "0 20px",
+      position: "relative"
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+        <div className="navbar-hamburger" style={{ display: isMobile ? "block" : "none", cursor: "pointer" }}
+          onClick={() => setMenuOpen(m => !m)}
+        >
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <rect y="6" width="32" height="4" rx="2" fill="#fff" />
+            <rect y="14" width="32" height="4" rx="2" fill="#fff" />
+            <rect y="22" width="32" height="4" rx="2" fill="#fff" />
+          </svg>
+        </div>
         <div
+          className={`navbar-links${menuOpen && isMobile ? ' menu-open' : ''}`}
           style={{
-            position: "absolute",
-            left: darkMode ? 32 : 4,
-            top: 4,
-            width: 24,
-            height: 24,
-            borderRadius: "50%",
-            background: darkMode ? "#fff" : "#192734",
-            transition: "left 0.3s"
+            display: !isMobile ? "flex" : (menuOpen ? "flex" : "none"),
+            gap: 20,
+            position: !isMobile ? "relative" : "absolute",
+            top: !isMobile ? undefined : 60,
+            left: !isMobile ? undefined : 0,
+            background: !isMobile ? undefined : (darkMode ? "#222" : "#ad1457"),
+            width: !isMobile ? undefined : "100vw",
+            padding: !isMobile ? undefined : 20,
+            zIndex: !isMobile ? undefined : 100,
+            flexDirection: !isMobile ? "row" : "column"
           }}
         >
-          {!darkMode ? (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="8" fill="#fff" />
-            </svg>
-          ) : (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M17 12.5A5.5 5.5 0 0 1 12.5 7c0-2.485 2.015-4.5 4.5-4.5a5.5 5.5 0 1 0 0 11z" fill="#FFD700" />
-              <circle cx="17" cy="12.5" r="1" fill="#FFD700" />
-              <circle cx="15" cy="15" r="1" fill="#FFD700" />
-              <circle cx="19" cy="14" r="1" fill="#FFD700" />
-            </svg>
+          <a href="/home" onClick={handleLinkClick} style={{ color: "#fff", textDecoration: "none", fontSize: 18 }}>Home</a>
+          <a href="/add" onClick={handleLinkClick} style={{ color: "#fff", textDecoration: "none", fontSize: 18 }}>Add</a>
+        </div>
+      </div>
+      <div>
+        <div
+          onClick={toggleDarkMode}
+          style={{
+            width: 60,
+            height: 32,
+            borderRadius: 20,
+            background: darkMode ? "#192734" : "#fff",
+            border: "2px solid #fff",
+            display: "flex",
+            alignItems: "center",
+            cursor: "pointer",
+            position: "relative",
+            boxShadow: "0 1px 4px #2222"
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              left: darkMode ? 32 : 4,
+              top: 4,
+              width: 24,
+              height: 24,
+              borderRadius: "50%",
+              background: darkMode ? "#fff" : "#192734",
+              transition: "left 0.3s"
+            }}
+          >
+            {!darkMode ? (
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="8" fill="#fff" />
+              </svg>
+            ) : (
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M17 12.5A5.5 5.5 0 0 1 12.5 7c0-2.485 2.015-4.5 4.5-4.5a5.5 5.5 0 1 0 0 11z" fill="#FFD700" />
+                <circle cx="17" cy="12.5" r="1" fill="#FFD700" />
+                <circle cx="15" cy="15" r="1" fill="#FFD700" />
+                <circle cx="19" cy="14" r="1" fill="#FFD700" />
+              </svg>
+            )}
+          </div>
+          {darkMode && (
+            <div style={{ position: "absolute", right: 8, top: 8 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M17 12.5A5.5 5.5 0 0 1 12.5 7c0-2.485 2.015-4.5 4.5-4.5a5.5 5.5 0 1 0 0 11z" fill="#FFD700" />
+                <circle cx="17" cy="12.5" r="1" fill="#FFD700" />
+                <circle cx="15" cy="15" r="1" fill="#FFD700" />
+                <circle cx="19" cy="14" r="1" fill="#FFD700" />
+              </svg>
+            </div>
           )}
         </div>
-        {darkMode && (
-          <div style={{ position: "absolute", right: 8, top: 8 }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M17 12.5A5.5 5.5 0 0 1 12.5 7c0-2.485 2.015-4.5 4.5-4.5a5.5 5.5 0 1 0 0 11z" fill="#FFD700" />
-              <circle cx="17" cy="12.5" r="1" fill="#FFD700" />
-              <circle cx="15" cy="15" r="1" fill="#FFD700" />
-              <circle cx="19" cy="14" r="1" fill="#FFD700" />
-            </svg>
-          </div>
-        )}
       </div>
-    </div>
-  </nav>
-);
+      <style>{`
+        @media (max-width: 700px) {
+          .navbar-hamburger { display: block !important; }
+        }
+      `}</style>
+    </nav>
+  );
+};
 
 type Favorite = {
   id: string;
@@ -159,6 +206,11 @@ const HomePage: React.FC = () => {
   const [selectedFav, setSelectedFav] = useState<Favorite | null>(null);
   const [selectedPhoto, setSelectedPhoto] = useState<string>("");
   const [editFav, setEditFav] = useState<Favorite | null>(null);
+  const [showLogin, setShowLogin] = useState(false);
+  const [adminUser, setAdminUser] = useState("");
+  const [adminPass, setAdminPass] = useState("");
+  const [adminError, setAdminError] = useState("");
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     const storedMode = localStorage.getItem("darkMode");
@@ -199,10 +251,29 @@ const HomePage: React.FC = () => {
     if (favorites.length > 0) fetchPhotos();
   }, [favorites]);
 
-  const handleDelete = async (id: string) => {
-    if (confirm("Yakin ingin menghapus data ini?")) {
-      await deleteUser(id);
-      fetchFavorites();
+  // Selalu minta login admin setiap klik hapus
+  const handleDelete = (id: string) => {
+    setPendingDeleteId(id);
+    setShowLogin(true);
+  };
+
+  // Login admin, jika benar lanjut hapus data
+  const handleAdminLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (adminUser === "admin" && adminPass === "nimda") {
+      setAdminError("");
+      setShowLogin(false);
+      if (pendingDeleteId) {
+        if (confirm("Yakin ingin menghapus data ini?")) {
+          await deleteUser(pendingDeleteId);
+          fetchFavorites();
+        }
+        setPendingDeleteId(null);
+      }
+      setAdminUser("");
+      setAdminPass("");
+    } else {
+      setAdminError("Username atau password salah.");
     }
   };
 
@@ -379,6 +450,38 @@ const HomePage: React.FC = () => {
                 <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
                   <button type="submit" style={{ background: "#1976d2", color: "#fff", border: "none", padding: "8px 24px", borderRadius: 6, fontWeight: "bold", cursor: "pointer" }}>Simpan</button>
                   <button type="button" onClick={() => setEditFav(null)} style={{ background: "#e74c3c", color: "#fff", border: "none", padding: "8px 24px", borderRadius: 6, fontWeight: "bold", cursor: "pointer" }}>Batal</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+        {showLogin && (
+          <div style={{
+            position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000
+          }}>
+            <div style={{ background: darkMode ? "#222" : "#fff", padding: 32, borderRadius: 8, minWidth: 320, boxShadow: "0 2px 12px #2224" }}>
+              <h3 style={{ color: darkMode ? "#f8bbd0" : "#ad1457", marginBottom: 16 }}>Hanya admin yang dapat menambahkan</h3>
+              <p style={{ marginBottom: 16 }}>Jika anda admin masukan username dan password:</p>
+              <form onSubmit={handleAdminLogin} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <input
+                  type="text"
+                  placeholder="Username admin"
+                  value={adminUser}
+                  onChange={e => setAdminUser(e.target.value)}
+                  style={{ padding: 8, borderRadius: 4, border: "1px solid #ccc" }}
+                  autoFocus
+                />
+                <input
+                  type="password"
+                  placeholder="Password admin"
+                  value={adminPass}
+                  onChange={e => setAdminPass(e.target.value)}
+                  style={{ padding: 8, borderRadius: 4, border: "1px solid #ccc" }}
+                />
+                {adminError && <div style={{ color: "red", fontSize: 14 }}>{adminError}</div>}
+                <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                  <button type="submit" style={{ flex: 1, padding: 8, background: "#ad1457", color: "#fff", border: "none", borderRadius: 4 }}>Login</button>
+                  <button type="button" style={{ flex: 1, padding: 8, background: "#ccc", color: "#222", border: "none", borderRadius: 4 }} onClick={() => { setShowLogin(false); setAdminUser(""); setAdminPass(""); setAdminError(""); setPendingDeleteId(null); }}>Batal</button>
                 </div>
               </form>
             </div>
