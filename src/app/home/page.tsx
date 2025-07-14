@@ -470,7 +470,7 @@ const HomePage: React.FC = () => {
               <form onSubmit={handleAdminLogin} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 <input
                   type="text"
-                  placeholder="silahkan masukan username"
+                  placeholder="username admin"
                   value={adminUser}
                   onChange={e => setAdminUser(e.target.value)}
                   style={{ padding: 8, borderRadius: 4, border: "1px solid #ccc" }}
@@ -478,7 +478,7 @@ const HomePage: React.FC = () => {
                 />
                 <input
                   type="password"
-                  placeholder="silahkan masukan password"
+                  placeholder="password admin"
                   value={adminPass}
                   onChange={e => setAdminPass(e.target.value)}
                   style={{ padding: 8, borderRadius: 4, border: "1px solid #ccc" }}
