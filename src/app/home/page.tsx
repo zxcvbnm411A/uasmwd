@@ -211,6 +211,7 @@ const HomePage: React.FC = () => {
   const [adminPass, setAdminPass] = useState("");
   const [adminError, setAdminError] = useState("");
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [pendingEdit, setPendingEdit] = useState<Favorite | null>(null);
 
   useEffect(() => {
     const storedMode = localStorage.getItem("darkMode");
@@ -268,6 +269,10 @@ const HomePage: React.FC = () => {
         }
         setPendingDeleteId(null);
       }
+      if (pendingEdit) {
+        setEditFav(pendingEdit);
+        setPendingEdit(null);
+      }
       setAdminUser("");
       setAdminPass("");
     } else {
@@ -292,34 +297,29 @@ const HomePage: React.FC = () => {
     setSelectedPhoto(userPhotos[fav.id] || "https://via.placeholder.com/100");
   };
 
-const [user, setUser] = useState({ isAdmin: false }); 
-const handleEdit = (fav: Favorite) => {
-  if (!user.isAdmin) {
-    alert("Hanya admin yang dapat melakukan edit.");
-    return;
-  }
-  setEditFav(fav);
-  setSelectedFav(null);
-};
+  const handleEdit = (fav: Favorite) => {
+    setPendingEdit(fav);
+    setSelectedFav(null);
+    setShowLogin(true);
+  };
 
-const handleEditSave = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!editFav) return;
+  const handleEditSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editFav) return;
+    try {
+      await API.put(`/users/${editFav.id}`, {
+        nama: editFav.nama,
+        pekerjaan: editFav.pekerjaan,
+        lagu: editFav.lagu,
+        addedAt: editFav.addedAt
+      });
+      setEditFav(null);
+      fetchFavorites();
+    } catch {
+      alert("Gagal menyimpan perubahan.");
+    }
 
-  try {
-    await API.put(`/users/${editFav.id}`, {
-      nama: editFav.nama,
-      pekerjaan: editFav.pekerjaan,
-      lagu: editFav.lagu,
-      addedAt: editFav.addedAt
-    });
-    setEditFav(null);
-    fetchFavorites();
-  } catch {
-    alert("Gagal menyimpan perubahan.");
-  }
-};
-
+  };
 
   if (!mounted) return null;
 
@@ -470,7 +470,7 @@ const handleEditSave = async (e: React.FormEvent) => {
               <form onSubmit={handleAdminLogin} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 <input
                   type="text"
-                  placeholder="Username admin"
+                  placeholder="silahkan masukan username"
                   value={adminUser}
                   onChange={e => setAdminUser(e.target.value)}
                   style={{ padding: 8, borderRadius: 4, border: "1px solid #ccc" }}
@@ -478,7 +478,7 @@ const handleEditSave = async (e: React.FormEvent) => {
                 />
                 <input
                   type="password"
-                  placeholder="Password admin"
+                  placeholder="silahkan masukan password"
                   value={adminPass}
                   onChange={e => setAdminPass(e.target.value)}
                   style={{ padding: 8, borderRadius: 4, border: "1px solid #ccc" }}
@@ -486,7 +486,7 @@ const handleEditSave = async (e: React.FormEvent) => {
                 {adminError && <div style={{ color: "red", fontSize: 14 }}>{adminError}</div>}
                 <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
                   <button type="submit" style={{ flex: 1, padding: 8, background: "#ad1457", color: "#fff", border: "none", borderRadius: 4 }}>Login</button>
-                  <button type="button" style={{ flex: 1, padding: 8, background: "#ccc", color: "#222", border: "none", borderRadius: 4 }} onClick={() => { setShowLogin(false); setAdminUser(""); setAdminPass(""); setAdminError(""); setPendingDeleteId(null); }}>Batal</button>
+                  <button type="button" style={{ flex: 1, padding: 8, background: "#ccc", color: "#222", border: "none", borderRadius: 4 }} onClick={() => { setShowLogin(false); setAdminUser(""); setAdminPass(""); setAdminError(""); setPendingDeleteId(null); setPendingEdit(null); }}>Batal</button>
                 </div>
               </form>
             </div>
